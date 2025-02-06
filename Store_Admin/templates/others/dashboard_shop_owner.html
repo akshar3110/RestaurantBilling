@@ -1,0 +1,9 @@
+{%extends "../common_files/base.html"%}
+{%block content%}
+    <h1>Welcome {{ username }} </h1>
+    <!-- HTML !-->
+    <a href="{% url 'changePassword' %}">Change Password</a>
+
+    <a href="{% url 'logout' %}">Logout</a>
+
+{% endblock %}
