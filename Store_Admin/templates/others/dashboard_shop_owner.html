@@ -2,8 +2,15 @@
 {%block content%}
     <h1>Welcome {{ username }} </h1>
     <!-- HTML !-->
-    <a href="{% url 'changePassword' %}">Change Password</a>
+    <button> <a href="{% url 'changePassword' %}">Change Password</a></button>&nbsp;
 
-    <a href="{% url 'logout' %}">Logout</a>
+    <button> <a href="{% url 'logout' %}">Logout</a></button>
+    <hr>
+    <h2> Manage Store</h2>
+
+<butoon><a href="{% url 'add_category' username=username %}">➕ Add Category</a></button>
+<button><a href="{% url 'add_product' username=username %}">➕ Add Product</a></button>
+
+
 
 {% endblock %}

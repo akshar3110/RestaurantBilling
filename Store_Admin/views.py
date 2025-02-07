@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
-from Store_Admin.models import CustomUser  # Import your custom user model
+from Store_Admin.models import CustomUser, Category, Product  # Import your custom user model
 from django.conf import settings
 import random
 from datetime import datetime, timedelta
@@ -15,25 +16,26 @@ def loginView(request):
         password = request.POST.get('password')
 
         try:
-            user = CustomUser.objects.get(username=username)  # Fetch user from DB
-            
-            if check_password(password, user.password):  # ✅ Check password manually
-                # Manually set session data
+            user = CustomUser.objects.get(username=username)  # ✅ Get user from DB
+
+            if check_password(password, user.password):  # ✅ Validate password manually
                 request.session['user_id'] = user.id
                 request.session['username'] = user.username
-                request.session['role'] = user.role.role_name if user.role else 'No role assigned'
-                request.session['cafe'] = user.cafe.cafe_name if user.cafe else 'No cafe assigned'
-                
-                # Redirect based on role
-                if user.role and user.role.role_name == "Shop_Owner":
-                    return redirect('dashboard_shop_owner', username=user.username)  # Dashboard 1
-                elif user.role and user.role.role_name == "Shop_Manager":
-                    return redirect('dashboard_shop_manager', username=user.username)  # Dashboard 2
-                elif user.role and user.role.role_name == "Chef":
+                request.session['role'] = user.role.role_name  # ✅ Ensure role is stored correctly
+                request.session['cafe'] = user.cafe.cafe_name if user.cafe else None
+
+                print("Logged in user role:", user.role.role_name)  # ✅ Debugging line
+
+                # ✅ Redirect to the correct dashboard
+                if user.role.role_name == "Shop_Owner":
+                    return redirect('dashboard_shop_owner', username=user.username)
+                elif user.role.role_name == "Shop_Manager":
+                    return redirect('dashboard_shop_manager', username=user.username)
+                elif user.role.role_name == "Chef":
                     return redirect('dashboard_chef', username=user.username)
-                else:
-                    messages.error(request, "Role not recognized.")
-                    return redirect('loginPage')  # If no valid role, go back to login
+
+                messages.error(request, 'Role not recognized.')
+                return redirect('loginPage')  # If no valid role, go back to login
                 
             else:
                 messages.error(request, 'Invalid username or password.')
@@ -42,16 +44,55 @@ def loginView(request):
             messages.error(request, 'User does not exist.')
 
     return render(request, 'login.html')  # Reload login page on failure
-
 # Dashboard for Shop Owner
+
 def dashboard_shop_owner(request, username):
-    return render(request, 'others/dashboard_shop_owner.html', {'username': username})
+    if 'user_id' not in request.session or 'role' not in request.session:
+        messages.error(request, "Please log in again.")
+        return redirect('loginPage')  # ✅ Redirect to login if session is missing
+
+    print("Session Data:", request.session)  # ✅ Debugging line
+
+    if request.session['role'] != "Shop_Owner":
+        messages.error(request, "Access denied! You are not a Shop Owner.")
+        return redirect('loginPage')
+
+    session_username = request.session.get('username', username)
+
+    return render(request, 'others/dashboard_shop_owner.html', {'username': session_username})
+
+
+def add_category(request, username):
+    if request.method == 'POST':
+        category_name = request.POST.get('category_name')
+        description = request.POST.get('description')
+
+        if not category_name:
+            messages.error(request, "Category name is required.")
+        else:
+            Category.objects.create(name=category_name, description=description)
+            messages.success(request, f'Category "{category_name}" added successfully!')
+            return redirect('dashboard_shop_owner', username=username)
+
+    return render(request, 'shop_owner/add_category.html', {'username': username})
+
+
+
+def add_product(request, username):
+    if 'username' not in request.session or request.session.get('role') != "Shop_Owner":
+        messages.error(request, "Access denied! You are not a Shop Owner.")
+        return redirect('loginPage')
+
+    return render(request, 'shop_owner/add_product.html', {'username': request.session['username']})
+
 
 # Dashboard for Shop Manager
+
 def dashboard_shop_manager(request, username):
     return render(request, 'others/dashboard_shop_manager.html', {'username': username})
 
 # Dashboard for Chef
+
 def dashboard_chef(request, username):
     return render(request, 'others/dashboard_chef.html', {'username': username})
 
