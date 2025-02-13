@@ -1,0 +1,103 @@
+{% extends '../common_files/base.html' %}
+{% block content %}
+
+<body>
+    <!-- ✅ Full-width Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand text-success font-weight-bold" href="#">{{ cafe}}</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Menu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard_shop_owner' username=username %}">Back To Dashboard</a>
+                    </li>
+                </ul>
+
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmLogout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+  {% endif %}
+  
+  <!-- ✅ Show Success Message from URL Parameter -->
+  {% if success_message %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ success_message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  {% endif %}
+    <div class="container mt-4">
+        <div class="card card-outline card-success m-3">
+            <h2 class="text-center text-success m-3"><b>View</b>Products</h2>
+        </div>
+        <div class="d-flex justify-content-between m-3">
+            <a href="{% url 'add_product' username=username %}" class="btn btn-sm btn-success font-weight-bold">Add New Product</a> 
+        </div>
+
+        <div class="card p-4 shadow">
+            <table class="table table-bordered table-striped">
+                <thead class="bg-success text-white">
+                    <tr>
+                        <th>#</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.category.name }}</td>
+                        <td>₹{{ product.price }}</td>
+                        <td>
+                            {% comment %} <a href="{% url 'edit_product' username=username product_id=product.id %}" class="btn btn-sm btn-primary">Edit</a> {% endcomment %}
+                            <a href="{% url 'delete_product' username=username product_id=product.id %}" class="btn btn-sm btn-danger" onclick="return confirmDelete()">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-danger">No products available !</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            
+        </div>
+    </div>
+
+    <!-- ✅ JavaScript for Delete Confirmation -->
+    <script>
+        function confirmDelete() {
+            return confirm("Are you sure you want to delete this product?");
+        }
+    </script>
+
+{% endblock %}

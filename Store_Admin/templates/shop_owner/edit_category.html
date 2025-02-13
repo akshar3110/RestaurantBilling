@@ -1,0 +1,67 @@
+{% extends '../common_files/base.html' %}
+{% block content %}
+
+<body>
+    <!-- ✅ Full-width Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand text-warning font-weight-bold" href="#">{{cafe}}</a>
+            <!-- ✅ Navbar Toggle for Mobile View -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Menu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="{% url 'dashboard_shop_owner' username=username %}">Back To Dashboard</a>
+                  </li>
+                </ul>
+
+                <!-- ✅ Logout Button -->
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmLogout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+  {% endif %}
+  
+  <!-- ✅ Show Success Message from URL Parameter -->
+  {% if success_message %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ success_message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  {% endif %}
+<div class="container mt-4">
+    <div class="card card-outline card-warning m-5"><h2 class="text-center text-warning m-3"><b>Edit</b>Category</h2></div>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group m-5">
+            <label>Category Name</label>
+            <input type="text" name="category_name" value="{{ category.name }}" class="form-control" required>
+        </div>
+        
+        <button type="submit" class="btn btn-warning ml-5">Update Category</button>
+        <a href="{% url 'viewCategories' username=request.session.username %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

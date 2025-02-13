@@ -1,28 +1,85 @@
 {% extends '../common_files/base.html' %}
 {% block content %}
-<h2>Add Product</h2>
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    <label>Category:</label>
-    <select name="category_id" required>
-        {% for category in categories %}
-        <option value="{{ category.id }}">{{ category.name }}</option>
-        {% endfor %}
-    </select>
 
-    <label>Product Name:</label>
-    <input type="text" name="name" required>
+<body>
+    <!-- ✅ Full-width Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand text-success font-weight-bold" href="#">{{ cafe }}</a>
+            <!-- ✅ Navbar Toggle for Mobile View -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-    <label>Description (Optional):</label>
-    <textarea name="description"></textarea>
+            <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Menu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard_shop_owner' username=username %}">Back To Dashboard</a>
+                    </li>
+                </ul>
 
-    <label>Price:</label>
-    <input type="number" name="price" step="0.01" required>
+                <!-- ✅ Logout Button -->
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmLogout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
 
-    <label>Image (Optional):</label>
-    <input type="file" name="image">
+    <div class="container mt-1">
+        <div class="card card-outline card-success m-3">
+            <h2 class="text-center text-success m-3"><b>Add</b> Product</h2>
+        </div>
+        <div class="d-flex justify-content-between m-3">
+            <a href="{% url 'viewProducts' username=username %}" class="btn btn-sm btn-success font-weight-bold">View Products</a> 
+        </div>
 
-    <button type="submit">Add Product</button>
-</form>
-<a href="{% url 'dashboard_shop_owner' username=request.session.username %}">Back to Dashboard</a>
+        <form method="POST" enctype="multipart/form-data" onsubmit="return confirmAddProduct()">
+            {% csrf_token %}
+            
+            <div class="form-group m-3">
+                <label>Product Name</label>
+                <input type="text" name="product_name" placeholder="Enter Product Name" class="form-control" required>
+            </div>
+
+            <div class="form-group m-3">
+                <label>Category</label>
+                <select name="category" class="form-control" required>
+                    <option value="" disabled selected>Select a category</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% empty %}
+                        <option value="" disabled>No categories available</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group m-3">
+                <label>Price</label>
+                <input type="number" name="price" step="0.01" placeholder="Enter Price" class="form-control" required>
+            </div>
+
+            <div class="form-group m-3">
+                <label>Product Image</label>
+                <input type="file" name="product_image" class="form-control">
+            </div>
+
+            <button type="submit" class="btn btn-success ml-3">Add Product</button>
+            <a href="{% url 'dashboard_shop_owner' username=username %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+
+    <!-- ✅ JavaScript for Confirmation Alert -->
+    <script>
+        function confirmAddProduct() {
+            return confirm("Are you sure you want to add this product?");
+        }
+    </script>
+
 {% endblock %}

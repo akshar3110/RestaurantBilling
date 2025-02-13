@@ -1,0 +1,115 @@
+{% extends '../common_files/base.html' %}
+{% block content %}
+
+<body>
+    <!-- ✅ Full-width Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand text-warning font-weight-bold" href="#">{{cafe}}</a>
+            <!-- ✅ Navbar Toggle for Mobile View -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Menu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="{% url 'dashboard_shop_owner' username=username %}">Back To Dashboard</a>
+                  </li>
+                </ul>
+
+                <!-- ✅ Logout Button -->
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmLogout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+  {% endif %}
+  
+  <!-- ✅ Show Success Message from URL Parameter -->
+  {% if success_message %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ success_message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  {% endif %}
+    <!-- ✅ Main Content -->
+    <div class="container mt-4">
+        <div class="card card-outline card-warning m-3">
+            <h2 class="text-center text-warning m-3"><b>View</b>Categories</h2>
+        </div>
+        <div class="d-flex justify-content-between m-3 ">
+          <a href="{% url 'add_category' username=username %}" class="btn btn-sm btn-warning font-weight-bold">Add New Category</a>
+        </div>
+
+        <div class="card p-4 shadow">
+                <table class="table table-bordered table-striped">
+                    <thead class="bg-warning text-white">
+                        <tr>
+                            <th>#</th>
+                            <th>Category Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ category.name }}</td>
+                                <td >
+                                    <a href="{% url 'editCategory' username=username  category_id=category.id %}" class="btn btn-sm btn-warning">Edit</a>
+                                    <button onclick="confirmDelete({{ category.id }}) " class="btn btn-sm btn-warning">Delete</button>
+                                    
+                                </td>
+                            </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-danger">No categories found !</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            
+        </div>
+
+        
+    </div>
+
+    <!-- ✅ Logout Confirmation -->
+    <script>
+        function confirmLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "{% url 'logout' %}";  // Change 'logout' to your actual logout URL
+            }
+        }
+        
+        function confirmDelete(categoryId) {
+            if (confirm("Are you sure you want to delete this category?")) {
+                window.location.href = `/dashboard/shop-owner/{{ username }}/delete-category/${categoryId}/`;
+              }
+          }
+      
+      
+    </script>
+
+</body>
+
+{% endblock %}

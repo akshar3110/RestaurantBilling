@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from Store_Admin import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('Store_Admin.urls'))
     
 ]
+# handler404 = 'Store_Admin.views.error_404'
